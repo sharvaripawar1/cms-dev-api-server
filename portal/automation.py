@@ -68,7 +68,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
         hours_added = timedelta(hours = round(escalation_hours))
         print('hours added', hours_added)
                 
-        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id,service_asset_ref_id=form_service_asset_ref_id).filter(is_deleted='N')
+        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id).filter(is_deleted='N')
         print('Header data : ',header_data)
         for header_id_data in header_data:
                 header_id = header_id_data.id
@@ -122,7 +122,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 sequence_number = subdetails_entry.sequence_number,
                                 next_sequence_number = subdetails_entry.next_sequence_number,
                                 status = 'Closed',
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 start_date_time = datetime.now().astimezone(pytz.utc),
                                 escalation_date_time = datetime.now().astimezone(pytz.utc) + hours_added,
                                 end_date_time = datetime.now().astimezone(pytz.utc),
@@ -154,7 +154,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 status = 'Initiated',
                                 start_date_time = datetime.now().astimezone(pytz.utc),
                                 escalation_date_time = datetime.now().astimezone(pytz.utc) + hours_added,
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 is_active = 'Y',
                                 is_deleted = 'N',
                                 sub_application_id = subdetails_entry.sub_application_id,
@@ -180,7 +180,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 sequence_number = subdetails_entry.sequence_number,
                                 next_sequence_number = subdetails_entry.next_sequence_number,
                                 status = 'Not Initiated',
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 is_active = 'Y',
                                 is_deleted = 'N',
                                 sub_application_id = subdetails_entry.sub_application_id,
@@ -210,7 +210,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 status = 'Initiated',
                                 start_date_time = datetime.now().astimezone(pytz.utc),
                                 escalation_date_time = datetime.now().astimezone(pytz.utc) + hours_added,
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 is_active = 'Y',
                                 is_deleted = 'N',
                                 sub_application_id = subdetails_entry.sub_application_id,
@@ -236,7 +236,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 sequence_number = subdetails_entry.sequence_number,
                                 next_sequence_number = subdetails_entry.next_sequence_number,
                                 status = 'Not Initiated',
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 is_active = 'Y',
                                 is_deleted = 'N',
                                 sub_application_id = subdetails_entry.sub_application_id,
@@ -266,7 +266,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 status = 'Initiated',
                                 start_date_time = datetime.now().astimezone(pytz.utc),
                                 escalation_date_time = datetime.now().astimezone(pytz.utc) + hours_added,
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 is_active = 'Y',
                                 is_deleted = 'N',
                                 sub_application_id = subdetails_entry.sub_application_id,
@@ -292,7 +292,7 @@ def initiate_activity_tbl(left_panel_id, form_ref_id, form_company_ref_id, form_
                                 sequence_number = subdetails_entry.sequence_number,
                                 next_sequence_number = subdetails_entry.next_sequence_number,
                                 status = 'Not Initiated',
-                                sla = subdetails_entry.sla_response_time,
+                                sla = escalation_hours,
                                 is_active = 'Y',
                                 is_deleted = 'N',
                                 sub_application_id = subdetails_entry.sub_application_id,
@@ -374,7 +374,7 @@ def routing_activity_for_Assignees_Action(left_panel_id, form_ref_id, form_compa
         #print('Selected Level', selected_level.first())
         print('form_company_ref_id : ',form_company_ref_id)
         print('form_service_asset_ref_id : ',form_service_asset_ref_id)
-        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id,service_asset_ref_id=form_service_asset_ref_id).filter(is_deleted='N')
+        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id).filter(is_deleted='N')
         print('Header data : ',header_data)
         for header_id_data in header_data:
                 header_id = header_id_data.id
@@ -445,7 +445,7 @@ def update_activity_tbl(left_panel_id, form_ref_id, user_action_ref_id, form_com
         ### Traverse through workflow to get level rules
         print('form_company_ref_id : ',form_company_ref_id)
         print('form_service_asset_ref_id : ',form_service_asset_ref_id)
-        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id,service_asset_ref_id=form_service_asset_ref_id).filter(is_deleted='N')
+        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id).filter(is_deleted='N')
         print('Header data : ',header_data)
         for header_id_data in header_data:
                 header_id = header_id_data.id
@@ -462,7 +462,10 @@ def update_activity_tbl(left_panel_id, form_ref_id, user_action_ref_id, form_com
                 approval_dict[level_rule.id] = level_rule.approval_field_value
                 workflow_details_ids.append(level_rule.id)
 
+            print(workflow_ref_id)
+            print(form_ref_id)
             activity_data = tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, status="Initiated")
+            print(activity_data)
             for data in activity_data:
                 start_time = data.start_date_time
             end_date_time = datetime.now()
@@ -532,7 +535,7 @@ def update_activity_for_NOT_INITIATED(left_panel_id, form_ref_id, user_action_re
         ### Traverse through workflow to get level rules
         print('form_company_ref_id : ',form_company_ref_id)
         print('form_service_asset_ref_id : ',form_service_asset_ref_id)
-        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id,service_asset_ref_id=form_service_asset_ref_id).filter(is_deleted='N')
+        header_data = tbl_workflow_mst.objects.filter(company_ref_id=form_company_ref_id).filter(is_deleted='N')
         print('Header data : ',header_data)
         for header_id_data in header_data:
                 header_id = header_id_data.id

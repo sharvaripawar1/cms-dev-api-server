@@ -781,3 +781,10 @@ class getEscalationProblemIssue_view(APIView):
         cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_problem_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.company_ref_id_id="+ company_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
         escalation_diff_problemissue = dictfetchall(cursor1)
         return Response(escalation_diff_problemissue, status=status.HTTP_201_CREATED)
+
+class getAllEmployeesByUserIdView(APIView):
+    def get(self, request): 
+        cursor1 = connection.cursor()
+        cursor1.execute("select  a.id, b.end_user_ref_id, a.company_ref_id_id, b.company_id_id, c.id as user_id, a.first_name from public.portal_tbl_employee_mst as a join public.portal_tbl_login_mst as b on a.id = b.end_user_ref_id and a.company_ref_id_id = b.company_id_id join public.auth_user as c on b.user_id = c.id where a.is_deleted = 'N' and b.is_deleted = 'N'")
+        employee_data = dictfetchall(cursor1)
+        return Response(employee_data, status=status.HTTP_201_CREATED)

@@ -197,6 +197,7 @@ class tbl_company_mst(models.Model):
     ifsc_code = models.CharField(max_length=30,blank=True, null=True,verbose_name='IFSC Code')
     comments = models.CharField(max_length=30,blank=True, null=True,verbose_name='Comments')
     kyc_document_ref_id = models.CharField(default='N',max_length=200,verbose_name="Key Document Ref Id")
+    is_company = models.CharField(default='N',max_length=1,verbose_name='Is Company')
     is_deleted = models.CharField(max_length=1, default='N',verbose_name="Is Deleted")
     is_active = models.CharField(default='Y',max_length=1,verbose_name='Is Active')
     created_date_time = models.DateTimeField(default=timezone.localtime,verbose_name="Created Date Time")
@@ -891,7 +892,7 @@ class tbl_issue_mst(models.Model):
     closed_date_time = models.DateTimeField(default=timezone.localtime,verbose_name="Closed Date Time")
     closed_by = models.IntegerField(default=0,verbose_name="Closed By",null = True ,blank= True)
     is_converted_flag = models.CharField(default='N',max_length=1,verbose_name='Is Converted Flag')
-    conversion_ticket_type_ref_id = models.ForeignKey("tbl_ticket_type_mst", verbose_name="C Ticket Type Ref Id", on_delete=models.PROTECT,null = True , blank = True,related_name='converted_tickect')
+    conversion_ticket_type_ref_id = models.ForeignKey("tbl_ticket_type_mst", verbose_name="C Ticket Type Ref Id", on_delete=models.PROTECT,null = True , blank = True,related_name='converted_ticket')
     converted_issue_ref_id = models.IntegerField(default=0,verbose_name='Converted Issue Ref Id',null = True , blank = True)
     converted_problem_ref_id =  models.ForeignKey("tbl_problem_issue_mst", verbose_name="Problem Ref ID",on_delete=models.CASCADE,blank=True,null = True)
     total_resolution_time = models.DecimalField(default=0,max_digits=15,decimal_places=2,verbose_name="Resolution Time",blank=True,null = True)
@@ -1181,7 +1182,7 @@ class tbl_asset_details(models.Model):
 
     class Meta:
         verbose_name_plural = "tbl_asset_details"
-        
+
 class tbl_entity_relationship_mst(models.Model):
     share_id = models.IntegerField(default=0,verbose_name='Share ID')
     company_ref_id = models.ForeignKey("tbl_company_mst", default=0, verbose_name="Company Ref Id", on_delete=models.PROTECT)
@@ -1194,3 +1195,4 @@ class tbl_entity_relationship_mst(models.Model):
     updated_by = models.IntegerField(default=0,verbose_name="Updated By")
     sub_application_id = models.CharField(max_length=20,verbose_name="Sub-Application ID")
     application_id = models.CharField(max_length=20,verbose_name="Application ID")
+
