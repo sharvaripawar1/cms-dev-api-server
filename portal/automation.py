@@ -426,6 +426,7 @@ def routing_activity_for_Assignees_Action(left_panel_id, form_ref_id, form_compa
 
 
 def update_activity_tbl(left_panel_id, form_ref_id, user_action_ref_id, form_company_ref_id, form_service_asset_ref_id):
+    screen_name = tbl_left_panel.objects.filter(id=left_panel_id).filter(is_deleted='N')[0].form_name
     print('Inside function update_activity_tbl',left_panel_id, form_ref_id, user_action_ref_id)
     max_level_approval_required = 0
     next_triggered_sequence_number = None
@@ -461,21 +462,23 @@ def update_activity_tbl(left_panel_id, form_ref_id, user_action_ref_id, form_com
                 approval_fieldname = level_rule.field_name
                 approval_dict[level_rule.id] = level_rule.approval_field_value
                 workflow_details_ids.append(level_rule.id)
-
+            end_date_time = datetime.now()
             print(workflow_ref_id)
             print(form_ref_id)
-            activity_data = tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, status="Initiated")
+            activity_data = tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, screen_name=screen_name, status="Initiated")
             print(activity_data)
-            for data in activity_data:
-                start_time = data.start_date_time
-            end_date_time = datetime.now()
+            if activity_data:
+                for data in activity_data:
+                    start_time = data.start_date_time
+            else:
+                start_time = end_date_time.astimezone(pytz.utc)
             end_time_utc = end_date_time.astimezone(pytz.utc)
             diff = end_time_utc - start_time
             days, seconds = diff.days, diff.seconds
             hours = format((days * 24 + seconds / 3600), ".2f")
 
             ### Change 'Initiated' to 'Closed'
-            for activity_entry in tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, status="Initiated"):
+            for activity_entry in tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, screen_name=screen_name, status="Initiated"):
                 if activity_entry:
                     activity_entry.user_action_ref_id = user_action_ref_id
                     activity_entry.status = "Closed"
@@ -491,7 +494,7 @@ def update_activity_tbl(left_panel_id, form_ref_id, user_action_ref_id, form_com
             
             ### 'Initiate' the next sequence number
             if is_workflow_activity_completed == False:
-                tbl_workflow_activity.objects.filter(sequence_number=next_triggered_sequence_number, workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id).update(status="Initiated")
+                tbl_workflow_activity.objects.filter(sequence_number=next_triggered_sequence_number, workflow_ref_id=workflow_ref_id, screen_name=screen_name, form_ref_id=form_ref_id).update(status="Initiated")
 
             ### Get filteration keys for tbl_workflow_routing_activity table
             routing_details_object = tbl_workflow_routing_details.objects.filter(workflow_ref_id=workflow_ref_id).first()
@@ -516,7 +519,7 @@ def update_activity_tbl(left_panel_id, form_ref_id, user_action_ref_id, form_com
 
 def update_activity_for_NOT_INITIATED(left_panel_id, form_ref_id, user_action_ref_id, form_company_ref_id, form_service_asset_ref_id):
     print('Inside function update_activity_for_NOT_INITIATED')
-
+    screen_name = tbl_left_panel.objects.filter(id=left_panel_id).filter(is_deleted='N')[0].form_name
     max_level_approval_required = 0
     next_triggered_sequence_number = None
     next_triggered_routing_sequence_number = None
@@ -552,7 +555,7 @@ def update_activity_for_NOT_INITIATED(left_panel_id, form_ref_id, user_action_re
                 workflow_details_ids.append(level_rule.id)
 
             ### Change 'Not Initiated' to 'Closed'
-            for activity_entry in tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, status="Not Initiated"):
+            for activity_entry in tbl_workflow_activity.objects.filter(workflow_ref_id=workflow_ref_id, form_ref_id=form_ref_id, screen_name=screen_name, status="Not Initiated"):
                 if activity_entry:
                     activity_entry.user_action_ref_id = user_action_ref_id
                     activity_entry.status = "Closed"
