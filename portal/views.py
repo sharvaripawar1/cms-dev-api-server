@@ -610,9 +610,19 @@ class getTotalTicketCount_view(APIView):
         cursor2 = connection.cursor()
         cursor3 = connection.cursor()
         company_id=request.GET['company_id']
-        cursor1.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +")+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +")) as total")
-        cursor2.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=1)+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=1)) as total")
-        cursor3.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=3)+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=3)) as total")
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N')+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N')) as total")
+            cursor2.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and status_ref_id_id=1)+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and status_ref_id_id=1)) as total")
+            cursor3.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and status_ref_id_id=3)+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and status_ref_id_id=3)) as total")
+        else:
+            cursor1.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +")+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +")) as total")
+            cursor2.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=1)+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=1)) as total")
+            cursor3.execute("Select((SELECT count(*) as num FROM public.portal_tbl_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=3)+(SELECT count(*) as num2 FROM public.portal_tbl_problem_issue_mst where is_deleted='N' and company_ref_id_id="+ company_id +" and status_ref_id_id=3)) as total")
+
         total_ticket = dictfetchall(cursor1)
         open_ticket = dictfetchall(cursor2)
         close_ticket = dictfetchall(cursor3)
@@ -636,7 +646,15 @@ class getPieChartData_view(APIView):
         ticket_type_ref_id_id=request.GET['ticket_type_ref_id_id']
         status_type_ref_id=request.GET['status_type_ref_id']
         company_id=request.GET['company_id']
-        cursor1.execute("select count(b.*),a.master_key from public.portal_tbl_master as a left join public.portal_tbl_issue_mst as b on a.id=b.priority_ref_id_id  and  b.is_deleted='N' and b.status_ref_id_id="+ status_type_ref_id +" and b.ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" where a.master_type ='Priority' group by a.master_key")
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("select count(b.*),a.master_key from public.portal_tbl_master as a left join public.portal_tbl_issue_mst as b on a.id=b.priority_ref_id_id  and  b.is_deleted='N' and b.status_ref_id_id="+ status_type_ref_id +" and b.ticket_type_ref_id_id="+ ticket_type_ref_id_id +" where a.master_type ='Priority' group by a.master_key")
+        else:
+            cursor1.execute("select count(b.*),a.master_key from public.portal_tbl_master as a left join public.portal_tbl_issue_mst as b on a.id=b.priority_ref_id_id  and  b.is_deleted='N' and b.status_ref_id_id="+ status_type_ref_id +" and b.ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" where a.master_type ='Priority' group by a.master_key")
+        
         total_ticket = dictfetchall(cursor1)
         return Response(total_ticket, status=status.HTTP_201_CREATED)
 
@@ -646,7 +664,15 @@ class getPieChartDataforProblem_view(APIView):
         ticket_type_ref_id_id=request.GET['ticket_type_ref_id_id']
         status_type_ref_id=request.GET['status_type_ref_id']
         company_id=request.GET['company_id']
-        cursor1.execute("select count(b.*),a.master_key from public.portal_tbl_master as a left join public.portal_tbl_problem_issue_mst as b on a.id=b.priority_ref_id_id  and  b.is_deleted='N' and b.status_ref_id_id="+ status_type_ref_id +" and b.ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and b.company_ref_id_id="+ company_id +" where a.master_type ='Priority' group by a.master_key")
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("select count(b.*),a.master_key from public.portal_tbl_master as a left join public.portal_tbl_problem_issue_mst as b on a.id=b.priority_ref_id_id  and  b.is_deleted='N' and b.status_ref_id_id="+ status_type_ref_id +" and b.ticket_type_ref_id_id="+ ticket_type_ref_id_id +" where a.master_type ='Priority' group by a.master_key")
+        else:
+            cursor1.execute("select count(b.*),a.master_key from public.portal_tbl_master as a left join public.portal_tbl_problem_issue_mst as b on a.id=b.priority_ref_id_id  and  b.is_deleted='N' and b.status_ref_id_id="+ status_type_ref_id +" and b.ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and b.company_ref_id_id="+ company_id +" where a.master_type ='Priority' group by a.master_key")
+
         total_ticket = dictfetchall(cursor1)
         return Response(total_ticket, status=status.HTTP_201_CREATED)
 
@@ -664,13 +690,23 @@ class getIncidentCount_view(APIView):
         ticket_type_ref_id_id=request.GET['ticket_type_ref_id_id']
         status_ref_id_id=request.GET['status_ref_id_id']
         company_id=request.GET['company_id']
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and status_ref_id_id="+ status_ref_id_id +" and CAST(created_date_time AS DATE) ='"+ today +"'")
 
-        cursor1.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and CAST(created_date_time AS DATE) ='"+ today +"'")
+            cursor2.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ week_end +"' and created_date_time>'"+ week_start +"'")
 
-        cursor2.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ week_end +"' and created_date_time>'"+ week_start +"'")
+            cursor3.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ month_end +"' and created_date_time>'"+ month_start +"'")
+        else:
+            cursor1.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and CAST(created_date_time AS DATE) ='"+ today +"'")
 
-        cursor3.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ month_end +"' and created_date_time>'"+ month_start +"'")
-       
+            cursor2.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ week_end +"' and created_date_time>'"+ week_start +"'")
+
+            cursor3.execute("SELECT count(*) FROM public.portal_tbl_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ month_end +"' and created_date_time>'"+ month_start +"'")
+
         total_day = dictfetchall(cursor1)
         total_week = dictfetchall(cursor2)
         total_month = dictfetchall(cursor3)
@@ -693,12 +729,23 @@ class getProblemCount_view(APIView):
         ticket_type_ref_id_id=request.GET['ticket_type_ref_id_id']
         status_ref_id_id=request.GET['status_ref_id_id']
         company_id=request.GET['company_id']
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and status_ref_id_id="+ status_ref_id_id +" and CAST(created_date_time AS DATE) ='"+ today +"'")
 
-        cursor1.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and CAST(created_date_time AS DATE) ='"+ today +"'")
+            cursor2.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ week_end +"' and created_date_time>'"+ week_start +"'")
 
-        cursor2.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ week_end +"' and created_date_time>'"+ week_start +"'")
+            cursor3.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ month_end +"' and created_date_time>'"+ month_start +"'")
+        else:
+            cursor1.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and CAST(created_date_time AS DATE) ='"+ today +"'")
 
-        cursor3.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ month_end +"' and created_date_time>'"+ month_start +"'")
+            cursor2.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ week_end +"' and created_date_time>'"+ week_start +"'")
+
+            cursor3.execute("SELECT count(*) FROM public.portal_tbl_problem_issue_mst where ticket_type_ref_id_id="+ ticket_type_ref_id_id +" and company_ref_id_id="+ company_id +" and status_ref_id_id="+ status_ref_id_id +" and created_date_time<'"+ month_end +"' and created_date_time>'"+ month_start +"'")
+        
        
         total_day = dictfetchall(cursor1)
         total_week = dictfetchall(cursor2)
@@ -767,7 +814,15 @@ class getEscalationIssue_view(APIView):
         month_end=request.GET['month_end']
         company_id=request.GET['company_id']
         ticket_type_ref_id=request.GET['ticket_type_ref_id']
-        cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.company_ref_id_id="+ company_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
+        else:
+            cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.company_ref_id_id="+ company_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
+
         escalation_diff_issue = dictfetchall(cursor1)
         return Response(escalation_diff_issue, status=status.HTTP_201_CREATED)
 
@@ -778,7 +833,14 @@ class getEscalationProblemIssue_view(APIView):
         month_end=request.GET['month_end']
         ticket_type_ref_id=request.GET['ticket_type_ref_id']
         company_id=request.GET['company_id']
-        cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_problem_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.company_ref_id_id="+ company_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
+        company_type_ref_id=request.GET['company_type_ref_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_problem_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
+        else:
+            cursor1.execute("SELECT a.id,a.ticket_type_ref_id_id,avg(b.escalation_date_time - b.end_date_time) as diff from public.portal_tbl_problem_issue_mst as a join public.portal_tbl_workflow_activity as b on b.form_ref_id = a.id where a.ticket_type_ref_id_id="+ ticket_type_ref_id +" and a.company_ref_id_id="+ company_id +" and a.created_date_time<='" + month_end + "' and a.created_date_time>='" + month_start + "' group by a.id")
         escalation_diff_problemissue = dictfetchall(cursor1)
         return Response(escalation_diff_problemissue, status=status.HTTP_201_CREATED)
 
@@ -788,3 +850,21 @@ class getAllEmployeesByUserIdView(APIView):
         cursor1.execute("select  a.id, b.end_user_ref_id, a.company_ref_id_id, b.company_id_id, c.id as user_id, a.first_name from public.portal_tbl_employee_mst as a join public.portal_tbl_login_mst as b on a.id = b.end_user_ref_id and a.company_ref_id_id = b.company_id_id join public.auth_user as c on b.user_id = c.id where a.is_deleted = 'N' and b.is_deleted = 'N'")
         employee_data = dictfetchall(cursor1)
         return Response(employee_data, status=status.HTTP_201_CREATED)
+
+class getcompanybycompanyid_view(APIView):
+    def get(self, request):
+        company_type_ref_id=request.GET['company_type_ref_id']
+        company_id=request.GET['company_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + company_type_ref_id + "'")
+        x = dictfetchall(cursor)
+        if(x[0].get('master_key')=='Admin'):
+            print(x[0].get('master_key'))
+            serializer_class = tbl_company_mst.objects.filter(is_deleted='N')
+            queryset = tbl_company_mst_serializer(serializer_class, many=True)
+        else:
+            print(x[0].get('master_key'))
+            serializer_class = tbl_company_mst.objects.filter(is_deleted='N').filter(company_id=company_id)
+            queryset = tbl_company_mst_serializer(serializer_class, many=True)
+        
+        return Response(queryset.data, status=status.HTTP_200_OK)

@@ -70,6 +70,7 @@ urlpatterns = [
     re_path('getLocation/', views.tbl_location_mst_view.as_view({'get' : 'list'})),
     re_path('getemployee/', views.tbl_employee_mst_view.as_view({'get' : 'list'})),
     re_path('getcompany/', views.tbl_company_mst_view.as_view({'get' : 'list'})),
+    re_path('getcompanybycompanyid/', views.getcompanybycompanyid_view.as_view()),
     path(r'add_company/', views.add_company_view.as_view(), name='add_company'),
     re_path('getcompany-priority-link/',views.tbl_company_priority_link_mst_view.as_view({'get':'list'})),
     re_path('currency/ofcountry/(?P<country_id>.+)/$', views.tbl_currency_mst_view.as_view({'get': 'list'})),
