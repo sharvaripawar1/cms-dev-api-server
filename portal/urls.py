@@ -57,6 +57,7 @@ router.register(r'company-priority-link',views.tbl_company_priority_link_mst_vie
 router.register(r'company-priority-link-details',views.tbl_company_priority_link_details_view)
 router.register(r'problem-issue-master',views.tbl_problem_issue_mst_view)
 router.register(r'asset-master',views.tbl_asset_mst_view)
+router.register(r'deleteuser',views.tbl_user_mst_view)
 
 
 urlpatterns = [

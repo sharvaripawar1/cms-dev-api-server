@@ -420,7 +420,7 @@ class file_upload_view(APIView):
 # Issue 
 class tbl_issue_mst_view(viewsets.ModelViewSet):
     serializer_class = tbl_issue_mst_serializer
-    queryset = tbl_issue_mst.objects.filter(is_deleted='N')   
+    queryset = tbl_issue_mst.objects.filter(is_deleted='N').order_by('-assigned_to_ref_id')   
 
 class tbl_issue_mst_user_view(APIView):
     def get(self, request):
@@ -461,7 +461,7 @@ class help_desk_mst_view(viewsets.ModelViewSet):
             return context
 class problem_help_desk_mst_view(viewsets.ModelViewSet):
     serializer_class = problem_help_desk_mst_serializer
-    queryset = tbl_problem_issue_mst.objects.filter(is_deleted='N')
+    queryset = tbl_problem_issue_mst.objects.filter(is_deleted='N').order_by('-assigned_to_ref_id')
 
 class tbl_problem_issue_mst_view(viewsets.ModelViewSet):
     serializer_class = tbl_problem_issue_mst_serializer
@@ -508,7 +508,7 @@ class get_application__acc_company(APIView):
     def get(self,request):
         if request.method=='GET':
             cursor = connection.cursor()
-            cursor.execute("SELECT a.company_ref_id_id,a.id,b.header_ref_id_id,b.application_ref_id_id,c.name from public.portal_tbl_company_application_link_mst as a join public.portal_tbl_company_application_link_details as b on a.id=b.header_ref_id_id and a.company_ref_id_id ="+request.GET['company_ref_id']+"join public.portal_tbl_service_asset_mst as c on b.application_ref_id_id=c.id and c.is_deleted='N' where a.is_deleted='N' and b.is_deleted='N'")
+            cursor.execute("SELECT a.company_ref_id_id,a.id,b.header_ref_id_id,b.application_ref_id_id,c.name from public.portal_tbl_company_application_link_mst as a join public.portal_tbl_company_application_link_details as b on a.id=b.header_ref_id_id and a.company_ref_id_id ="+request.GET['company_ref_id']+" join public.portal_tbl_service_asset_mst as c on b.application_ref_id_id=c.id and c.is_deleted='N' where a.is_deleted='N' and b.is_deleted='N'")
             applicationData = dictfetchall(cursor)
             return Response(applicationData, status=status.HTTP_200_OK)
 
