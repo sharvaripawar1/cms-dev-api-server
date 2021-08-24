@@ -420,11 +420,11 @@ class file_upload_view(APIView):
 # Issue 
 class tbl_issue_mst_view(viewsets.ModelViewSet):
     serializer_class = tbl_issue_mst_serializer
-    queryset = tbl_issue_mst.objects.filter(is_deleted='N').order_by('-assigned_to_ref_id')   
+    queryset = tbl_issue_mst.objects.filter(is_deleted='N').order_by('-assigned_to_ref_id','-id')   
 
 class tbl_issue_mst_user_view(APIView):
     def get(self, request):
-        serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(created_by=request.GET['created_by'])
+        serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(created_by=request.GET['created_by']).order_by('-id')
         serializer_result = tbl_issue_mst_serializer(serializer_class, many=True)
         return Response(serializer_result.data, status=status.HTTP_201_CREATED)   
 
@@ -435,7 +435,7 @@ class tbl_issue_mst_support_view(ListAPIView):
         cursor.execute("SELECT end_user_ref_id FROM public.portal_tbl_login_mst where user_id=" + created_by)
         end_user_ref_id = dictfetchall(cursor)
         assigned_to_ref_id = end_user_ref_id[0].get('end_user_ref_id')
-        serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(assigned_to_ref_id=assigned_to_ref_id)
+        serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(assigned_to_ref_id=assigned_to_ref_id).order_by('-id')
         serializer_result = tbl_issue_mst_serializer(serializer_class, many=True)
         return Response(serializer_result.data, status=status.HTTP_200_OK)  
 
@@ -446,7 +446,7 @@ class tbl_support_problem_issue_mst_view(APIView):
         cursor.execute("SELECT end_user_ref_id FROM public.portal_tbl_login_mst where user_id=" + created_by)
         end_user_ref_id = dictfetchall(cursor)
         assigned_to_ref_id = end_user_ref_id[0].get('end_user_ref_id')
-        serializer_class = tbl_problem_issue_mst.objects.filter(is_deleted='N').filter(assigned_to_ref_id=assigned_to_ref_id)
+        serializer_class = tbl_problem_issue_mst.objects.filter(is_deleted='N').filter(assigned_to_ref_id=assigned_to_ref_id).order_by('-id')
         serializer_result = tbl_problem_issue_mst_serializer(serializer_class, many=True)
         return Response(serializer_result.data, status=status.HTTP_200_OK)  
 
@@ -461,7 +461,7 @@ class help_desk_mst_view(viewsets.ModelViewSet):
             return context
 class problem_help_desk_mst_view(viewsets.ModelViewSet):
     serializer_class = problem_help_desk_mst_serializer
-    queryset = tbl_problem_issue_mst.objects.filter(is_deleted='N').order_by('-assigned_to_ref_id')
+    queryset = tbl_problem_issue_mst.objects.filter(is_deleted='N').order_by('-assigned_to_ref_id','-id')
 
 class tbl_problem_issue_mst_view(viewsets.ModelViewSet):
     serializer_class = tbl_problem_issue_mst_serializer
