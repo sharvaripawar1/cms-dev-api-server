@@ -1333,6 +1333,7 @@ class tbl_company_priority_link_mst_serializer(serializers.ModelSerializer):
                     det.priority_ref_id = init.get('priority_ref_id',det.priority_ref_id)
                     det.response_time= init.get('response_time',det.response_time)
                     det.resolution_time = init.get('resolution_time',det.resolution_time)
+                    det.escalation_time = init.get('escalation_time',det.escalation_time)
                     det.availability_percentage=init.get('availability_percentage',det.availability_percentage)
                     det.down_time=init.get('down_time',det.down_time)
                     det.application_id = init.get('application_id',det.application_id)

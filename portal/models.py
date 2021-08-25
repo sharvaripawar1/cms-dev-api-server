@@ -555,6 +555,7 @@ class tbl_company_priority_link_details(models.Model):
     priority_ref_id = models.ForeignKey("tbl_master", default=1,verbose_name="Priority Ref ID",on_delete=models.PROTECT)
     response_time =  models.DecimalField(default=0,max_digits=15,decimal_places=2,verbose_name="Response Time")
     resolution_time =  models.DecimalField(default=0,max_digits=15,decimal_places=2,verbose_name="Resolution Time")
+    escalation_time =  models.DecimalField(default=0,max_digits=15,decimal_places=2,verbose_name="Escalation Time")
     availability_percentage = models.IntegerField(default=0,verbose_name="availability_percentage")
     down_time =  models.DecimalField(default=0,max_digits=15,decimal_places=2,verbose_name="Down Time")
     is_active = models.CharField(default='Y',max_length=1,verbose_name='Is Active')

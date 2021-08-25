@@ -868,3 +868,12 @@ class getcompanybycompanyid_view(APIView):
             queryset = tbl_company_mst_serializer(serializer_class, many=True)
         
         return Response(queryset.data, status=status.HTTP_200_OK)
+
+class getSLAPriorityData_view(APIView):
+    def get(self, request):
+        priority_id=request.GET['priority_id']
+        company_id=request.GET['company_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT a.* FROM public.portal_tbl_company_priority_link_details as a JOIN public.portal_tbl_company_priority_link_mst as b on b.id=a.header_ref_id_id where b.company_ref_id_id=" + company_id + " and b.revision_status='Effective' and a.is_deleted='N' and b.is_deleted='N' and a.priority_ref_id_id=" + priority_id )
+        priority_time_data = dictfetchall(cursor)
+        return Response(priority_time_data, status=status.HTTP_201_CREATED)

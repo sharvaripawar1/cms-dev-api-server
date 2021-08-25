@@ -124,6 +124,6 @@ urlpatterns = [
     path(r'getPieChartDataforProblem/', views.getPieChartDataforProblem_view.as_view(), name="getPieChartDataforProblem_view"),
     path(r'getProblemCount/', views.getProblemCount_view.as_view(), name="getProblemCount_view"),
     path(r'getIncidentCount/', views.getIncidentCount_view.as_view(), name="getIncidentCount_view"),
-
+    path(r'get-company-priority-data', views.getSLAPriorityData_view.as_view(), name="getSLAPriorityData_view"),
     path('', include(router.urls)),
 ]
