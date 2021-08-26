@@ -877,3 +877,13 @@ class getSLAPriorityData_view(APIView):
         cursor.execute("SELECT a.* FROM public.portal_tbl_company_priority_link_details as a JOIN public.portal_tbl_company_priority_link_mst as b on b.id=a.header_ref_id_id where b.company_ref_id_id=" + company_id + " and b.revision_status='Effective' and a.is_deleted='N' and b.is_deleted='N' and a.priority_ref_id_id=" + priority_id )
         priority_time_data = dictfetchall(cursor)
         return Response(priority_time_data, status=status.HTTP_201_CREATED)
+
+class inActivateUser_view(APIView):
+    def get(self, request):
+        user_id=request.GET['user_id']
+        cursor = connection.cursor()
+        cursor.execute("SELECT a.id FROM public.auth_user as a JOIN public.portal_tbl_login_mst as b on b.user_id=a.id JOIN public.portal_tbl_user_mst as c on c.id=b.end_user_ref_id where c.id=" + user_id)
+        auth_id = dictfetchall(cursor)[0].get('id')
+        cursor1 = connection.cursor()
+        cursor1.execute("Update public.auth_user SET is_active='false' WHERE id=" + str(auth_id))
+        return Response(auth_id, status=status.HTTP_201_CREATED)
