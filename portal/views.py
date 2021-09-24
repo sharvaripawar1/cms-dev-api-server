@@ -424,9 +424,36 @@ class tbl_issue_mst_view(viewsets.ModelViewSet):
 
 class tbl_issue_mst_user_view(APIView):
     def get(self, request):
-        serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(created_by=request.GET['created_by']).order_by('-id')
-        serializer_result = tbl_issue_mst_serializer(serializer_class, many=True)
-        return Response(serializer_result.data, status=status.HTTP_201_CREATED)   
+        created_by = request.GET['created_by']
+        user_id = request.GET['created_by']
+        company_id = request.GET['company_id']
+
+        cursor1 = connection.cursor()
+        cursor1.execute("SELECT b.master_key FROM public.portal_tbl_company_mst as a JOIN public.portal_tbl_master as b on a.company_type_ref_id_id=b.id WHERE a.is_deleted='N' and a.id=" + company_id)
+        x = dictfetchall(cursor1)
+
+        if(x[0].get('master_key')=='Admin'):
+            serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').order_by('-id')
+            serializer_result = tbl_issue_mst_serializer(serializer_class, many=True)
+
+        elif(x[0].get('master_key')=='Customer'):
+            cursor2 = connection.cursor()
+            cursor2.execute("SELECT b.role_name FROM public.portal_tbl_login_mst as a JOIN public.portal_tbl_role_mst as b on a.role_ref_id_id=b.id and a.company_id_id=b.company_ref_id_id WHERE a.is_deleted='N' and a.user_id="+ user_id +" and a.company_id_id=" + company_id)
+            y = dictfetchall(cursor2)
+
+            if(y[0].get('role_name')=='Admin'):
+                serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(company_ref_id=company_id).order_by('-id')
+                serializer_result = tbl_issue_mst_serializer(serializer_class, many=True)
+            elif(y[0].get('role_name')=='User'):
+                serializer_class = tbl_issue_mst.objects.filter(is_deleted='N').filter(created_by=request.GET['created_by']).order_by('-id')
+                serializer_result = tbl_issue_mst_serializer(serializer_class, many=True)
+            else:
+                pass
+
+        else:
+            pass
+
+        return Response(serializer_result.data, status=status.HTTP_201_CREATED) 
 
 class tbl_issue_mst_support_view(ListAPIView):
     def get(self, request):
