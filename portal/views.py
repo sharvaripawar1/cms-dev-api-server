@@ -589,7 +589,7 @@ class get_screen_to_role(APIView):
     def get(self,request):
         if request.method=='GET':
             cursor = connection.cursor()
-            cursor.execute("SELECT  DISTINCT ON (a.role_name) a.role_name ,c.company_name ,result.assigned_to_role_id,result.company_ref_id_id,result.id,result from public.portal_tbl_assign_screen_to_role_mst result LEFT JOIN  public.portal_tbl_role_mst a on result.assigned_to_role_id = a.id left join public.portal_tbl_company_mst c on result.company_ref_id_id=c.id")
+            cursor.execute("SELECT  DISTINCT ON (result.assigned_to_role_id) result.assigned_to_role_id , c.company_name , a.role_name,result.company_ref_id_id,result.id,result from public.portal_tbl_assign_screen_to_role_mst result LEFT JOIN  public.portal_tbl_role_mst a on result.assigned_to_role_id = a.id left join public.portal_tbl_company_mst c on result.company_ref_id_id=c.id")
             ScreenToRoleData = dictfetchall(cursor)
           
             return Response(ScreenToRoleData, status=status.HTTP_200_OK) 
@@ -619,9 +619,19 @@ class tbl_company_priority_link_details_view(viewsets.ModelViewSet):
 # Sidebar
 class sidebar_leftpanel(APIView):
     def get(self,request):
-        cursor = connection.cursor()
-        cursor.execute("select f.*, e.id, e.form_ref_id_id, d.header_ref_id_id, c.share_id, e.share_id, f.share_id, a.application_id, b.application_id, c.application_id, d.application_id, e.application_id, f.application_id from public.portal_tbl_login_mst as a join public.portal_tbl_employee_mst as b on a.end_user_ref_id = b.id and a.company_id_id = b.company_ref_id_id join public.portal_tbl_assign_roles_to_enduser_mst as c on b.id = c.assigned_to_employee_id and c.company_ref_id_id = b.company_ref_id_id join public.portal_tbl_assign_roles_to_enduser_details as d on c.id = d.header_ref_id_id join public.portal_tbl_assign_screen_to_role_mst as e on e.assigned_to_role_id = d.assigned_to_role_ref_id_id and e.company_ref_id_id = c.company_ref_id_id join public.portal_tbl_left_panel as f on e.form_ref_id_id = f.id where a.user_id = %s and a.company_id_id = %s and a.is_deleted = 'N' and b.is_deleted = 'N' and c.is_deleted = 'N' and d.is_deleted = 'N' and e.is_deleted = 'N' and f.is_deleted = 'N'", (request.GET['AUTH_USER_ID'], request.GET['company_ref_id']))
-        sidebar = dictfetchall(cursor)
+        cursor1 = connection.cursor()
+        cursor1.execute("SELECT master_key FROM public.portal_tbl_master where master_type='Company Type' and master_value='" + request.GET['company_type_ref_id'] + "'")
+        x = dictfetchall(cursor1)
+        if(x[0].get('master_key')=='Admin'):
+            cursor = connection.cursor()
+            cursor.execute("select f.*, e.id, e.form_ref_id_id, d.header_ref_id_id, c.share_id, e.share_id, f.share_id, a.application_id, b.application_id, c.application_id, d.application_id, e.application_id, f.application_id from public.portal_tbl_login_mst as a join public.portal_tbl_employee_mst as b on a.end_user_ref_id = b.id and a.company_id_id = b.company_ref_id_id join public.portal_tbl_assign_roles_to_enduser_mst as c on b.id = c.assigned_to_employee_id and c.company_ref_id_id = b.company_ref_id_id join public.portal_tbl_assign_roles_to_enduser_details as d on c.id = d.header_ref_id_id join public.portal_tbl_assign_screen_to_role_mst as e on e.assigned_to_role_id = d.assigned_to_role_ref_id_id and e.company_ref_id_id = c.company_ref_id_id join public.portal_tbl_left_panel as f on e.form_ref_id_id = f.id where a.user_id = %s and a.company_id_id = %s and a.is_deleted = 'N' and b.is_deleted = 'N' and c.is_deleted = 'N' and d.is_deleted = 'N' and e.is_deleted = 'N' and f.is_deleted = 'N'", (request.GET['AUTH_USER_ID'], request.GET['company_ref_id']))
+            sidebar = dictfetchall(cursor)
+        elif(x[0].get('master_key')=='Customer'):
+            cursor = connection.cursor()
+            cursor.execute("select a.form_ref_id_id,a.id,b.* from public.portal_tbl_assign_screen_to_role_mst as a left join public.portal_tbl_left_panel as b on a.form_ref_id_id = b.id where a.company_ref_id_id = "+ request.GET['company_ref_id'] +" and a.is_deleted = 'N' and b.is_deleted = 'N' order by a.form_ref_id_id asc")
+            sidebar = dictfetchall(cursor)
+
+
         return Response(sidebar, status=status.HTTP_200_OK)
 
 class tbl_leftpanel(APIView):
