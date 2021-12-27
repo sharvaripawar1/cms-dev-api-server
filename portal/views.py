@@ -53,7 +53,7 @@ class add_company_view(APIView):
         print( user_serializer.errors ,"user_serializer")
         try:
             print('In Try')
-            if company_serializer.is_valid() and user_serializer.is_valid(): 
+            if company_serializer.is_valid() and user_serializer.is_valid():
                 company_serializer.save()
                 user_serializer.save()
 
@@ -93,7 +93,7 @@ class add_company_view(APIView):
                 recepient = request.data['company_master_form']['email']
                 send_mail(subject, message, EMAIL_HOST_USER, [recepient], fail_silently = False)
 
-                return Response(company_serializer.data, status=status.HTTP_201_CREATED)
+                return Response({"test":company_serializer.data}, status=status.HTTP_201_CREATED)
 
             return Response(company_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

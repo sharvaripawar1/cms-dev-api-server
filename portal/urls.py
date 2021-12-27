@@ -82,7 +82,7 @@ urlpatterns = [
     re_path('assign-to-screen/ofcompany/(?P<left_panel_id>.+)/$',views.tbl_assign_screen_to_role_mst_view.as_view({'get':'list'})),
     re_path('assign-to-screen/bycomapnyid/(?P<company_id>.+)/$',views.tbl_assign_screen_to_role_mst_view.as_view({'get':'list'})),
     re_path('master/oftype/(?P<master_type>.+)/$', views.MasterViewSet.as_view({'get' : 'list'})), #Using only one viewset pass country_id
-    re_path('channel/', views.tbl_channel_mst_view.as_view({'get' : 'list'})),  #Using only one viewset pass country_id
+    # re_path('channel/', views.tbl_channel_mst_view.as_view({'get' : 'list'})),  #Using only one viewset pass country_id
     re_path('gettickettype/', views.tbl_ticket_type_mst_view.as_view({'get' : 'list'})),
     re_path('getsla/',views.tbl_sla_mst_view.as_view({'get':'list'})),
     re_path('getmessage/',views.tbl_message_mst_view.as_view({'get':'list'})),
